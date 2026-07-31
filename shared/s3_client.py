@@ -2,6 +2,7 @@ import os
 import csv
 import io
 import boto3
+from botocore.config import Config
 
 REGION = "ap-south-1"
 _s3 = None
@@ -10,7 +11,12 @@ _s3 = None
 def _get_s3():
     global _s3
     if _s3 is None:
-        _s3 = boto3.client("s3", region_name=REGION)
+        _s3 = boto3.client(
+            "s3",
+            region_name=REGION,
+            endpoint_url=f"https://s3.{REGION}.amazonaws.com",
+            config=Config(signature_version="s3v4"),
+        )
     return _s3
 
 
