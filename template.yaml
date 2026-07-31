@@ -11,6 +11,7 @@ Globals:
       Variables:
         SECRET_NAME: !Ref SecretName
         GVMC_S3_BUCKET: !Ref GvmcS3Bucket
+        DB_URL: !Ref DbUrl
 
 Parameters:
   SecretName:
@@ -19,6 +20,9 @@ Parameters:
   GvmcS3Bucket:
     Type: String
     Default: gvmc-sw14-data
+  DbUrl:
+    Type: String
+    Default: ""
 
 Resources:
   GvmcApi:
