@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.build.parameters]
+template_file = "template.yaml"
+
+[default.deploy.parameters]
+stack_name              = "gvmc-sw14-backend"
+region                  = "ap-south-1"
+capabilities            = "CAPABILITY_IAM"
+confirm_changeset       = false
+fail_on_empty_changeset = false
+resolve_s3              = true
+parameter_overrides     = "GvmcS3Bucket=gvmc-sw14-data Ec2InstanceId="
