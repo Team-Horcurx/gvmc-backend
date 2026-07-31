@@ -55,10 +55,19 @@ class StatsService:
                 cur.execute("""
                     SELECT
                         w.id AS ward_id, w.name AS ward_name,
-                        COUNT(p.id)                             AS total_detections,
-                        SUM(p.detection_type = 'new_build')     AS unassessed_count
+                        COUNT(DISTINCT p.id)                     AS total_detections,
+                        SUM(p.detection_type = 'new_build')      AS unassessed_count,
+                        COALESCE(t.open_tickets, 0)              AS open_tickets,
+                        COALESCE(t.resolved_tickets, 0)          AS resolved_tickets
                     FROM wards w
                     LEFT JOIN properties p ON p.ward_id = w.id
+                    LEFT JOIN (
+                        SELECT ward_id,
+                               SUM(status IN ('open','under_review')) AS open_tickets,
+                               SUM(status = 'resolved')               AS resolved_tickets
+                        FROM tickets
+                        GROUP BY ward_id
+                    ) t ON t.ward_id = w.id
                     GROUP BY w.id, w.name
                     ORDER BY unassessed_count DESC
                 """)
@@ -81,12 +90,23 @@ class StatsService:
                 """)
                 totals_row = cur.fetchone()
 
+                cur.execute("""
+                    SELECT
+                        COUNT(*)                                   AS total_tickets,
+                        SUM(status IN ('open','under_review'))     AS open_tickets,
+                        SUM(status = 'resolved')                   AS resolved_tickets
+                    FROM tickets
+                """)
+                ticket_totals = cur.fetchone()
+
         wards = [
             {
                 "ward_id":          str(r["ward_id"]),
                 "ward_name":        r["ward_name"],
                 "total_detections": int(r["total_detections"] or 0),
                 "unassessed_count": int(r["unassessed_count"] or 0),
+                "open_tickets":     int(r["open_tickets"]     or 0),
+                "resolved_tickets": int(r["resolved_tickets"] or 0),
                 "ai_brief":         None,
             }
             for r in ward_rows
@@ -100,6 +120,9 @@ class StatsService:
             "verified":             int(totals_row["verified"]              or 0),
             "false_positives":      int(totals_row["false_positives"]       or 0),
             "revenue_estimate":     float(totals_row["revenue_estimate"]    or 0),
+            "total_tickets":        int(ticket_totals["total_tickets"]      or 0),
+            "open_tickets":         int(ticket_totals["open_tickets"]       or 0),
+            "resolved_tickets":     int(ticket_totals["resolved_tickets"]   or 0),
             "ward_id":              None,
         }
 

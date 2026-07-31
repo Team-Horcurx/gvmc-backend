@@ -7,14 +7,16 @@ from verify.verify_service import VerifyService
 from export.export_service import ExportService
 from admin.admin_service import AdminService
 from chat.chat_service import ChatService
+from tickets.tickets_service import TicketsService
 
-_wards  = WardsService()
-_props  = PropertiesService()
-_stats  = StatsService()
-_verify = VerifyService()
-_export = ExportService()
-_admin  = AdminService()
-_chat   = ChatService()
+_wards   = WardsService()
+_props   = PropertiesService()
+_stats   = StatsService()
+_verify  = VerifyService()
+_export  = ExportService()
+_admin   = AdminService()
+_chat    = ChatService()
+_tickets = TicketsService()
 
 # (METHOD, path_pattern, handler, path_param_names)
 ROUTES = [
@@ -31,6 +33,11 @@ ROUTES = [
     ("POST", r"/api/admin/db-config",                             _admin.db_config,           []),
     ("POST", r"/api/admin/refresh",                               _admin.refresh_pipeline,    []),
     ("POST", r"/api/chat",                                        _chat.chat,                 []),
+    ("POST", r"/api/tickets/photo-upload",                        _tickets.get_photo_upload_url, []),
+    ("POST", r"/api/tickets",                                     _tickets.create_ticket,        []),
+    ("GET",  r"/api/tickets",                                     _tickets.list_tickets,         []),
+    ("GET",  r"/api/tickets/(?P<ticket_id>[^/]+)",                _tickets.get_ticket,           ["ticket_id"]),
+    ("PATCH",r"/api/tickets/(?P<ticket_id>[^/]+)/review",         _tickets.review_ticket,        ["ticket_id"]),
 ]
 
 

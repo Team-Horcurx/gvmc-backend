@@ -34,6 +34,14 @@ def get_presigned_url(key: str, expiry: int = 3600) -> str:
     )
 
 
+def get_presigned_put_url(key: str, content_type: str = "image/jpeg", expiry: int = 300) -> str:
+    return _get_s3().generate_presigned_url(
+        "put_object",
+        Params={"Bucket": get_bucket(), "Key": key, "ContentType": content_type},
+        ExpiresIn=expiry,
+    )
+
+
 def put_object(key: str, body: bytes, content_type: str = "application/octet-stream"):
     _get_s3().put_object(
         Bucket=get_bucket(),

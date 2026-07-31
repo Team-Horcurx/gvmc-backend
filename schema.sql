@@ -58,6 +58,27 @@ CREATE TABLE IF NOT EXISTS alerts (
   FOREIGN KEY (ward_id) REFERENCES wards(id)
 );
 
+CREATE TABLE IF NOT EXISTS tickets (
+  id               VARCHAR(36)   PRIMARY KEY,
+  ward_id          VARCHAR(10)   NOT NULL,
+  property_id      VARCHAR(36)   NULL,
+  house_number     VARCHAR(100)  NOT NULL,
+  description      TEXT          NOT NULL,
+  tax_pending      DECIMAL(12,2) NULL,
+  photo_s3_key     VARCHAR(500)  NULL,
+  status           ENUM('open','under_review','resolved') NOT NULL DEFAULT 'open',
+  supervisor_notes TEXT          NULL,
+  reviewed_by      VARCHAR(100)  NULL,
+  reviewed_at      DATETIME      NULL,
+  created_at       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (ward_id)     REFERENCES wards(id),
+  FOREIGN KEY (property_id) REFERENCES properties(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tickets_ward_id ON tickets(ward_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_status  ON tickets(status);
+
 -- ── Default admin config ───────────────────────────────────────────────────────
 INSERT INTO admin_config (key_name, value, updated_at) VALUES
   ('data_mode',       'demo',                    NOW()),
